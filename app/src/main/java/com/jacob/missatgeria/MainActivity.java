@@ -1,5 +1,6 @@
 package com.jacob.missatgeria;
 
+import android.content.SharedPreferences;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -22,13 +23,13 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
 
 public class MainActivity extends AppCompatActivity {
+    public static final String NOM_PREFERENCIES = "PreferenciesQuepassaEh";
 
     Button login;
     TextView user;
@@ -62,9 +63,34 @@ public class MainActivity extends AppCompatActivity {
 
                 result.setText(res);
 
+                toJson(res);
             }
         });
 
+    }
+    public void toJson(String res){
+        try {
+            JSONObject jsonObject = new JSONObject(res);
+            JSONObject dades = new JSONObject(jsonObject.getString("dades"));
+
+            boolean bo = jsonObject.getBoolean("correcta");
+            if (bo) {
+                Log.d("RETORNAT-DADES", "toJson: " + dades);
+                SharedPreferences.Editor editor = getSharedPreferences(NOM_PREFERENCIES, MODE_PRIVATE).edit();
+                editor.putInt("CLAU_CODIUSUARI", dades.getInt("codiusuari"));
+                editor.putString("CLAU_USER", dades.getString("nom"));
+                editor.putString("CLAU_PASSWD", pass.getText().toString());
+                editor.putString("TOKEN", dades.getString("token"));
+                editor.apply();
+
+            } else {
+                String msgError = jsonObject.getString("rowcount");
+                Toast.makeText(this,msgError,Toast.LENGTH_LONG).show();
+            }
+
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
     }
     public static String CridadaPost(String adrecaURL,HashMap<String,String> parametres) {
         String resultat="";
@@ -77,10 +103,8 @@ public class MainActivity extends AppCompatActivity {
             httpConn.setRequestMethod("POST");
             httpConn.setDoInput(true);
             httpConn.setDoOutput(true);
-            //dona error aqui
             OutputStream os = httpConn.getOutputStream();
-            BufferedWriter writer = new BufferedWriter(
-                    new OutputStreamWriter(os, "UTF-8"));
+            BufferedWriter writer = new BufferedWriter( new OutputStreamWriter(os, "UTF-8"));
             writer.write(montaParametres(parametres));
             writer.flush();
             writer.close();
