@@ -11,6 +11,7 @@ public class HelperQuepassaeh extends SQLiteOpenHelper {
     public static final String COLUMN_MSG = "msg";
     public static final String COLUMN_DATAHORA = "datahora";
     public static final String COLUMN_FKCODIUSUARI = "codiusuari";
+    public static final String COLUMN_PASS = "pass";
     public static final String COLUMN_PENDENT = "pendent";
     public static final String TABLE_USUARI = "usuari";
     public static final String COLUMN_CODIUSUARI = "codiusuari";
@@ -31,6 +32,7 @@ public class HelperQuepassaeh extends SQLiteOpenHelper {
             + TABLE_USUARI + "(" + COLUMN_CODIUSUARI
             + " integer primary key, "
             + COLUMN_NOM + " text not null,"
+            + COLUMN_PASS + " text not null,"
             + COLUMN_EMAIL + " text,"+COLUMN_FOTO+" text)";
     public HelperQuepassaeh(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);

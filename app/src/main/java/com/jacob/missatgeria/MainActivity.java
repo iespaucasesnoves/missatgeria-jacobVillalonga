@@ -1,5 +1,6 @@
 package com.jacob.missatgeria;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
@@ -29,7 +30,9 @@ import java.util.Map;
 import javax.net.ssl.HttpsURLConnection;
 
 public class MainActivity extends AppCompatActivity {
-    public static final String NOM_PREFERENCIES = "PreferenciesQuepassaEh";
+
+    private static Preferencies preferencies;
+    private static SharedPreferences prefs;
 
     Button login;
     TextView user;
@@ -40,6 +43,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        Context context = getBaseContext();
+        prefs = this.getSharedPreferences("PreferenciesQuepassaEh", Context.MODE_PRIVATE);
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
@@ -74,14 +80,17 @@ public class MainActivity extends AppCompatActivity {
             JSONObject dades = new JSONObject(jsonObject.getString("dades"));
 
             boolean bo = jsonObject.getBoolean("correcta");
+
             if (bo) {
-                Log.d("RETORNAT-DADES", "toJson: " + dades);
-                SharedPreferences.Editor editor = getSharedPreferences(NOM_PREFERENCIES, MODE_PRIVATE).edit();
-                editor.putInt("CLAU_CODIUSUARI", dades.getInt("codiusuari"));
-                editor.putString("CLAU_USER", dades.getString("nom"));
-                editor.putString("CLAU_PASSWD", pass.getText().toString());
-                editor.putString("TOKEN", dades.getString("token"));
+                SharedPreferences.Editor editor = prefs.edit();
+
+                editor.putInt("id", Integer.parseInt(dades.getString("codiusuari")));
+                editor.putString("user", dades.getString("nom"));
+                editor.putString("passwd", pass.getText().toString());
+                editor.putString("token", dades.getString("token"));
                 editor.apply();
+
+                preferencies = new Preferencies(getBaseContext());
 
             } else {
                 String msgError = jsonObject.getString("rowcount");
